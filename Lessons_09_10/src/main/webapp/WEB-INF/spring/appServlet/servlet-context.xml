@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+
+ 	<bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+	    <property name="converters">
+	        <list>
+	            <bean class="com.mastspring.lesson09.StringToProductConveter"/>
+	        </list>
+	    </property>
+	</bean>
+		
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<mvc:annotation-driven conversion-service="conversionService"/>
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<mvc:resources mapping="/resources/**" location="/resources/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	
+	<context:component-scan base-package="com.mastspring.lesson09" />
+	
+	<!--  This is just for interceptor examples. After that example comment this code -->
+	<!--  By the way the following stuff does nt work since we used mvc:annotation-driven that overrides it -->
+	<!--  So we need to use mvc:interceptor for this -->
+	<bean id="myInterceptoDoesNotWork" class="com.mastspring.lesson09.MyInterceptor"/>
+    <bean id="handlerMapping" class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">
+        <property name="interceptors">
+            <list>
+                <ref bean="myInterceptoDoesNotWork"/>
+            </list>
+        </property>
+    </bean>
+
+	<!--  this works though -->
+	<bean id="myInterceptoDoesWork" class="com.mastspring.lesson09.MyInterceptor"/>
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/interceptcheck"/> <!--  so interception works only for this mapping -->
+			<ref bean="myInterceptoDoesWork"/>
+		</mvc:interceptor>
+		 
+ 		<mvc:interceptor>
+			<mvc:mapping path="/localecheck"/> 
+			<ref bean="localeChangeInterceptor"/>
+		</mvc:interceptor>
+		 
+		<mvc:interceptor>
+			<mvc:mapping path="/themecheck"/> <!--  so interception works only for this mapping -->
+			<ref bean="themeChangeInterceptor"/>
+		</mvc:interceptor>
+	</mvc:interceptors>
+	
+	
+	<!--  Spring MVC LocaleResolver -->
+	<bean id="localeChangeInterceptor" class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+    	<property name="paramName" value="language" />
+   </bean>
+	
+	<!--  now we need a LocaleResolver. In this example I choose CookeResolver -->
+ 	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
+	    <property name="cookieName" value="clientlanguage"/>
+	    <property name="cookieMaxAge" value="100000"/>
+	    <property name="defaultLocale" value="en"/>
+	 </bean> 
+
+	<!--  MessageSource to load messages -->
+ 	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+    	<property name="basename" value="classpath:labels" />
+	</bean> 
+	
+	<!--  Spring Theme Resolver  -->
+	<bean id="themeSource" class="org.springframework.ui.context.support.ResourceBundleThemeSource">
+        <property name="basenamePrefix" value="theme-"/>
+	</bean>
+ 
+	<!-- Theme Change Interceptor and Resolver definition -->
+	<bean id="themeChangeInterceptor" class="org.springframework.web.servlet.theme.ThemeChangeInterceptor">
+	    <property name="paramName" value="setTheme" />
+	</bean>
+	
+	<bean id="themeResolver" class="org.springframework.web.servlet.theme.CookieThemeResolver">
+	    <property name="defaultThemeName" value="default" />
+	    <property name="cookieName" value="WaitroseCookie"></property>
+	</bean>
+	
+	
+	<!--  File Upload Example , No magic, just below resolver needed-->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+	    <property name="maxUploadSize" value="100000"/> <!-- is that in bytes? -->
+	</bean>
+</beans>

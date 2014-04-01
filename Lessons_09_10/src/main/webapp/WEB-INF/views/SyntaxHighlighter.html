@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="US-ASCII">
+<title>Insert title here</title>
+
+
+</head>
+
+<link href="http://alexgorbatchev.com/pub/sh/current/styles/shThemeDefault.css" rel="stylesheet" type="text/css" />
+<script src="http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js" type="text/javascript"></script>
+<script src="http://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js" type="text/javascript"></script>
+<script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert"></script>
+<body>
+<script type="text/javascript">
+     SyntaxHighlighter.all()
+</script>
+
+<pre  class="prettyprint">
+package com.mastspring.lesson09;
+
+public class Test001Ctlr {
+
+	public String welcome(Model model) {
+		model.addAttribute("welcome", "Welcome to &lt;h4>HR Application&lt;/h4> To Manage Employees..");
+		return "welcome";
+	}
+}
+
+
+</pre>
+
+
+</body>
+
+</html>
+
